@@ -17,6 +17,7 @@ CFG_KEY__DB_HOST = "host"
 CFG_KEY__DB_PORT = "port"
 CFG_KEY__DB_USER = "user"
 CFG_KEY__DB_PWD = "password"
+CFG_KEY__DB_AUTH = "auth"
 CFG_KEY__DB_NAME = "db_name"
 CFG_SEC__FILE = "FILE"
 CFG_KEY__FILE_REPO_DIR = "repo_dir"
@@ -38,8 +39,8 @@ PANEL_TITLE = 'Redis Python客户端 - by Tanj(v_' + SOFTWARE_VERSION + ')'
 
 ABOUT_ME = '''
 作者：Tanj（谭剑）
-来自：多好科技（http://idohoo.com）
-Email：iAmFarago@gmail.com
+来自：多好科技（http://www.farago.tech）
+Email：arantam@qq.com
 QQ：112960591
 发布时间：2014-10-24
 更新时间：2014-10-24
@@ -79,23 +80,34 @@ class Fedis(object):
                                                                                                 padx=1)
         self.hostVar = StringVar()
         self.hostEntry = Entry(self.frame1, textvariable=self.hostVar,
-                               font=(MENU_FONT_STYLE_CHAR, GLOB_FONT_SIZE_normal), width=60)
-        self.hostEntry.grid(row=0, column=1, sticky=W, pady=3, padx=1)
-        self.hostVar.set("118.186.241.50")
+                               font=(MENU_FONT_STYLE_CHAR, GLOB_FONT_SIZE_normal), width=30)
+        self.hostEntry.grid(row=0, column=2, sticky=W, pady=3, padx=1)
+        self.hostVar.set("")
         self.hostEntry.focus_set()
         # 输入框 -- 端口
-        Label(self.frame1, text='端口:', font=(MENU_FONT_STYLE, GLOB_FONT_SIZE_normal)).grid(row=0, column=1, sticky=E,
+        Label(self.frame1, text='端口:', font=(MENU_FONT_STYLE, GLOB_FONT_SIZE_normal)).grid(row=0, column=3, sticky=E,
                                                                                            pady=3,
                                                                                            padx=1)
         self.portVar = StringVar()
         self.portEntry = Entry(self.frame1, textvariable=self.portVar,
-                               font=(MENU_FONT_STYLE_CHAR, GLOB_FONT_SIZE_normal), width=8).grid(row=0, column=2,
+                               font=(MENU_FONT_STYLE_CHAR, GLOB_FONT_SIZE_normal), width=8).grid(row=0, column=4,
                                                                                                  sticky=W, pady=1,
                                                                                                  padx=1)
-        self.portVar.set("6379")
+        self.portVar.set("")
+
+        # 输入框 -- 签名
+        Label(self.frame1, text='签名:', font=(MENU_FONT_STYLE, GLOB_FONT_SIZE_normal)).grid(row=0, column=5, sticky=E,
+                                                                                           pady=3,
+                                                                                           padx=1)
+        self.authVar = StringVar()
+        self.authEntry = Entry(self.frame1, textvariable=self.authVar,
+                               font=(MENU_FONT_STYLE_CHAR, GLOB_FONT_SIZE_normal), width=8).grid(row=0, column=6,
+                                                                                                 sticky=W, pady=1,
+                                                                                                 padx=1)
+        self.portVar.set("")
         # 按钮 -- 测试连通性
         Button(self.frame1, text="测试连接", command=self.test_connection, fg='#0d0', bg='white',
-               font=(MENU_FONT_STYLE, GLOB_FONT_SIZE_normal, GLOB_FONT_WEIGHT)).grid(row=0, column=3, sticky=EW, pady=1,
+               font=(MENU_FONT_STYLE, GLOB_FONT_SIZE_normal, GLOB_FONT_WEIGHT)).grid(row=0, column=7, sticky=EW, pady=1,
                                                                                      padx=1)
         # # --
         self.frame2 = Frame(self.top, width=720)
@@ -145,8 +157,8 @@ class Fedis(object):
         if host.strip() == "":
             messagebox.showwarning('警告', "请填写'主机'!")
             return False
-        hostregexp = re.compile(r'(([12][0-9][0-9]|[1-9][0-9]|[1-9])\.){3}([12][0-9][0-9]|[1-9][0-9]|[1-9])')
-        if host.upper() != 'LOCALHOST' and not hostregexp.match(host):
+        hostRegexp = re.compile(r'(([12][0-9][0-9]|[1-9][0-9]|[1-9])\.){3}([12][0-9][0-9]|[1-9][0-9]|[1-9])')
+        if host.upper() != 'LOCALHOST' and not hostRegexp.match(host):
             messagebox.showwarning('警告', "非法的主机: \n" + host)
             return False
         if port.strip() == "":
@@ -167,7 +179,7 @@ class Fedis(object):
         if not isvalid:
             return isvalid
         try:
-            r = redis.StrictRedis(host=self.hostVar.get(), port=self.portVar.get())
+            r = redis.StrictRedis(host=self.hostVar.get(), port=self.portVar.get(), password=self.authVar.get())
             pingmsg = r.ping()
         except redis.exceptions.ConnectionError as e:
             messagebox.showerror('错误', '连接Redis服务失败，请检查配置！错误代码=' + str(e))
@@ -181,7 +193,7 @@ class Fedis(object):
 
     # connect to Redis
     def connect_redis(self):
-        faredis = redis.StrictRedis(host=self.hostVar.get(), port=self.portVar.get())
+        faredis = redis.StrictRedis(host=self.hostVar.get(), port=self.portVar.get(), password=self.authVar.get())
         try:
             resp = faredis.execute_command(self.cmdVar.get())
             # str(b'','utf-8')可以吧BYTES转换成unicode;bytes('','utf-8')反向操作
