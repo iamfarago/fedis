@@ -129,7 +129,7 @@ class Fedis(object):
         self.endecFlag = IntVar(self.frame3)
         Radiobutton(self.frame3, variable=self.endecFlag, value=1, text='字符').grid(row=0, column=1, sticky=W)
         Radiobutton(self.frame3, variable=self.endecFlag, value=2, text='字节').grid(row=0, column=2, sticky=W)
-        self.endecFlag.set(2)
+        self.endecFlag.set(1)
         # 按钮 - 执行生成文件处理
         self.goProcessButton = Button(self.frame3, text="执行，Go !!", command=self.go_process, fg='blue',
                                       bg='white', font=(MENU_FONT_STYLE, GLOB_FONT_SIZE_normal, GLOB_FONT_WEIGHT))
